@@ -1,6 +1,9 @@
 require 'rulers/version'
 require 'rulers/array'
 require 'rulers/routing'
+require 'rulers/util'
+require 'rulers/dependencies'
+
 # main gem module
 module Rulers
   # app class
