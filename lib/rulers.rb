@@ -3,6 +3,7 @@ require 'rulers/array'
 require 'rulers/routing'
 require 'rulers/util'
 require 'rulers/dependencies'
+require 'rulers/controller'
 
 # main gem module
 module Rulers
@@ -10,21 +11,28 @@ module Rulers
   class Application
     def call(env)
       klass, act = get_controller_and_action(env)
+      return render_missing_response unless klass
       controller = klass.new(env)
+      render_controller_action(controller, act)
+    rescue NameError
+      render_missing_response
+    end
+
+    def render_controller_action(controller, act)
       if controller.respond_to?(act)
         text = controller.send(act)
-        [200, { 'Content-Type' => 'text/html' }, [text]]
+        render_response(text)
       else
-        [404, { 'Content-Type' => 'text/html' }, ['page missing']]
+        render_missing_response
       end
     end
-  end
 
-  # basic controller
-  class Controller
-    attr_reader :env
-    def initialize(env)
-      @env = env
+    def render_missing_response
+      [404, { 'Content-Type' => 'text/html' }, ['page missing']]
+    end
+
+    def render_response(text)
+      [200, { 'Content-Type' => 'text/html' }, [text]]
     end
   end
 end
